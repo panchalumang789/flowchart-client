@@ -8,9 +8,9 @@
     "@mui/material": "^5.15.19",
     "@mui/styles": "^5.15.19",
     "@reduxjs/toolkit": "^2.2.5",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
+    "@testing-library/jest-dom": "^6.4.5",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.2",
     "axios": "^1.7.2",
     "dagre": "^0.8.5",
     "konva": "^9.3.11",
@@ -23,7 +23,7 @@
     "react-scripts": "5.0.1",
     "use-resize-observer": "^9.1.0",
     "uuid": "^9.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^4.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
