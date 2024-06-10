@@ -1102,6 +1102,19 @@ const FlowNode = ({
         <Text
           perfectDrawEnabled={false}
           x={5}
+          y={height / 2.0 - height / 6.0}
+          width={width - 10}
+          height={height / 3.0}
+          text={name}
+          fontSize={20}
+          align="center"
+          verticalAlign="middle"
+          fill="black"
+          listening={false}
+        />
+        {/* <Text
+          perfectDrawEnabled={false}
+          x={5}
           y={height / 2.0 - height / 3.8}
           width={width - 10}
           height={height / 3.0}
@@ -1124,7 +1137,7 @@ const FlowNode = ({
           verticalAlign="middle"
           fill="black"
           listening={false}
-        />
+        /> */}
         <NodeNumber
           position={{ x: width - 30, y: 4 }}
           radius={13}
