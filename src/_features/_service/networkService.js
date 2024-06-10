@@ -29,7 +29,6 @@ export function getNetworkService({ checkAuth }) {
         ...authHeader(url),
         ...headers,
       },
-      withCredentials: true,
       timeout: timeout,
     };
 
