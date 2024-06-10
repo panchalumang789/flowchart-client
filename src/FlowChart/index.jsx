@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { procedure } from "./ProcedureFlow/utils";
-import { ProcedureFlow, layoutEngines } from "./ProcedureFlow";
+import { Button } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
+
 import AddUserDialog from "./AddUserDialog";
+import { LoadingStatus } from "../_features/AsyncStatus";
+import { ProcedureFlow, layoutEngines } from "./ProcedureFlow";
 import {
   getAllUsers,
   getUsersStatus,
@@ -11,7 +13,11 @@ import {
   createUser,
   updateUser,
 } from "../_features/users/usersSlice";
-import { LoadingStatus } from "../_features/AsyncStatus";
+import LoginDialog from "./LoginDialog";
+import {
+  logoutUser,
+  selectActiveUser,
+} from "../_features/account/accountSlice";
 
 const treeRanker = "network-simplex";
 
@@ -27,6 +33,7 @@ const computeTargetInfoFromAction = (
     (typeof successor == "string" && !isNaN(parseInt(successor)))
   ) {
     return {
+      label: label ? label : undefined,
       nodeId: parentId ? parentId + ":" + successor : successor,
     };
   } else {
@@ -43,7 +50,7 @@ const getNodeConnections = (node, nodes, parentId = null) => {
       node.successors?.map((button) => {
         const targetId = computeTargetInfoFromAction(
           node,
-          null,
+          node?.connection_text,
           button,
           nodes,
           parentId
@@ -52,18 +59,6 @@ const getNodeConnections = (node, nodes, parentId = null) => {
       }) ?? [];
   }
 
-  if (node.next_button) {
-    const nextNodeId = computeTargetInfoFromAction(
-      node,
-      "next",
-      { id: "next" },
-      nodes,
-      parentId
-    );
-    if (nextNodeId) {
-      connections.push(nextNodeId);
-    }
-  }
   if (node.successor) {
     connections.push(
       computeTargetInfoFromAction(
@@ -141,12 +136,18 @@ export const FlowChart = () => {
   const dispatch = useDispatch();
   const [selectedNodeId, setSelectedNodeId] = useState(1);
   const [openAddNewModal, setOpenAddNewModal] = useState(false);
+  const [openLoginModal, setOpenLoginModal] = useState(false);
   const [userModalData, setUserModalData] = useState({ predecessorId: null });
   const [flowData, setFlowData] = useState(
-    generateProcedureFlow(Number(1), procedure.nodes, treeRanker)
+    generateProcedureFlow(1, [{
+      id: 1,
+      name: "Node Title 1",
+      successors: [2],
+    }], treeRanker)
   );
   const usersStatus = useSelector(getUsersStatus);
   const usersData = useSelector(getAllUserData);
+  const activeUser = useSelector(selectActiveUser);
 
   useEffect(() => {
     if (usersStatus === LoadingStatus.Idle) {
@@ -165,7 +166,7 @@ export const FlowChart = () => {
   };
 
   const handleNodePreview = ({ node }) => {
-    console.log("index_27-procedure, node==>", procedure, node);
+    console.log("index_27-procedure, node==>", node);
   };
 
   const setClickedAddButton = (nodeId) => {
@@ -175,6 +176,10 @@ export const FlowChart = () => {
 
   const closeAddNewModal = () => {
     setOpenAddNewModal(false);
+  };
+
+  const closeLoginModal = () => {
+    setOpenLoginModal(false);
   };
 
   const onNodeDelete = async (nodeId) => {
@@ -193,7 +198,7 @@ export const FlowChart = () => {
         createUser({
           predecessor: userModalData.predecessorId,
           successors: [],
-          ...newNodeData
+          ...newNodeData,
         })
       );
     } else {
@@ -212,6 +217,21 @@ export const FlowChart = () => {
 
   return (
     <div ref={nodeDisplayPanel} style={{ height: "100vh", width: "100vw" }}>
+      <Button
+        variant="contained"
+        style={{
+          position: "absolute",
+          right: "15px",
+          top: "15px",
+          zIndex: 999,
+        }}
+        color="info"
+        onClick={() => {
+          activeUser?.role ? dispatch(logoutUser()) : setOpenLoginModal(true);
+        }}
+      >
+        {activeUser?.role ? "Logout" : "Login"}
+      </Button>
       <ProcedureFlow
         draggable={false}
         layoutEngine={layoutEngines.dagreLayout}
@@ -225,11 +245,15 @@ export const FlowChart = () => {
         onNodeDelete={onNodeDelete}
         onNodeEdit={onNodeEdit}
       />
-      <button onClick={addData}>Add Data</button>
       <AddUserDialog
         userData={userModalData}
         isModalOpen={openAddNewModal}
         closeModal={closeAddNewModal}
+        submitData={addData}
+      />
+      <LoginDialog
+        isModalOpen={openLoginModal}
+        closeModal={closeLoginModal}
         submitData={addData}
       />
     </div>

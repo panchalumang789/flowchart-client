@@ -6,7 +6,7 @@ const accountService = getAccountService({});
 
 const initialState = {
   accountStatus: LoadingStatus.Idle,
-  activeUser: { role: "admin" },
+  activeUser: { role: "" },
   error: null,
 };
 
@@ -15,12 +15,12 @@ export const loginUser = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const response = await accountService.login(
-        params.email,
+        params.username,
         params.password
       );
       return response;
     } catch (e) {
-      rejectWithValue(e);
+      return rejectWithValue(e);
     }
   }
 );
@@ -39,7 +39,7 @@ const accountSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = LoadingStatus.Loaded;
-        // state.activeUser = action.payload;
+        state.activeUser = { ...action.payload, role: "admin" };
         state.error = null;
       })
       .addCase(loginUser.rejected, (state, action) => {

@@ -8,13 +8,12 @@ const networkService = getNetworkService({
 });
 
 export const getAccountService = () => {
-  const login = async (email, password) => {
+  const login = async (username, password) => {
     try {
-      const response = await networkService.post(
-        `${baseUrl}/authenticate`,
-        { email, password },
-        10000
-      );
+      const response = await networkService.post(`${baseUrl}/authenticate`, {
+        username,
+        password,
+      });
 
       return response.data;
     } catch (e) {
