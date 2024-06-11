@@ -163,7 +163,6 @@ export const dagreLayout = (function () {
         maxY: g.graph().height,
       };
 
-
       g.nodes().forEach(function (v) {
         let gnode = g.node(v);
         let node = flowChart.nodes.find((node) => +node.id === +v);
@@ -208,7 +207,6 @@ export const dagreLayout = (function () {
           endNodeId: endNode.id,
           points: deltaPoints,
         });
-        
       });
     },
   };

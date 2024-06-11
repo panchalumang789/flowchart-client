@@ -17,6 +17,7 @@ const Loading = () => {
           justifyContent: "center",
           backgroundColor: "#00000035",
           alignItems: "center",
+          zIndex: "9999",
         }}
       >
         <div class="loader"></div>

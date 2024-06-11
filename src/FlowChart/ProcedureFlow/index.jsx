@@ -1,5 +1,11 @@
 import { Box, IconButton, Tooltip } from "@mui/material";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Stage,
   Layer,
@@ -326,6 +332,39 @@ const ProcedureFlow = ({
     [flowChart]
   );
 
+  const findRelationalNodes = useMemo(
+    () =>
+      (connectors, activeNodeId, relational = []) => {
+        const getNode = connectors.find(
+          (conn) => conn.endNodeId === activeNodeId
+        );
+        if (getNode) {
+          relational.push(activeNodeId);
+          return findRelationalNodes(
+            connectors,
+            getNode.startNodeId,
+            relational
+          );
+        }
+        relational.push(activeNodeId);
+        return relational;
+      },
+    []
+  );
+
+  const creatorNodeRelation = useMemo(
+    () =>
+      findRelationalNodes(
+        flowChart.connectors,
+        +process.env.REACT_APP_CREATOR_ID
+      ),
+    [findRelationalNodes, flowChart.connectors]
+  );
+
+  const relationalNodes = useMemo(
+    () => findRelationalNodes(flowChart.connectors, activeNodeId),
+    [activeNodeId, findRelationalNodes, flowChart.connectors]
+  );
   //#endregion Methods
 
   //#region Render time calcs
@@ -342,7 +381,8 @@ const ProcedureFlow = ({
     return (
       <FlowNode
         draggable={draggable}
-        isActive={+activeNodeId === +node.id}
+        isActive={relationalNodes.includes(+node.id)}
+        isCreatorNode={creatorNodeRelation.includes(+node.id)}
         isParentActive={+activeNodeId === +node.parentId}
         isBranchNode={Boolean(node.parentId)}
         isConnectedToActive={node.connections
@@ -387,7 +427,8 @@ const ProcedureFlow = ({
         position={{ x: connector.x1, y: connector.y1 }}
         labelPosition={{ x: connector.labelX, y: connector.labelY }}
         label={connector.label}
-        isActive={+connector.endNodeId === +activeNodeId}
+        isActive={relationalNodes.includes(connector.endNodeId)}
+        isCreatorNode={creatorNodeRelation.includes(connector.endNodeId)}
         points={connector.points}
         highlightAction={highlightAction}
         outConnection={+connector.startNodeId === +activeNodeId}
@@ -460,6 +501,7 @@ const FlowConnector = ({
   labelPosition,
   label,
   isActive,
+  isCreatorNode,
   points,
   radius,
   highlightAction,
@@ -481,7 +523,11 @@ const FlowConnector = ({
   let strokeWidth = null;
   let textBackground = null;
 
-  if (isActive) {
+  if (isCreatorNode) {
+    stroke = "red";
+    strokeWidth = 4;
+    textBackground = "red";
+  } else if (isActive) {
     stroke = "green";
     strokeWidth = 4;
     textBackground = "green";
@@ -893,6 +939,7 @@ const FlowNode = ({
   position,
   draggable,
   isActive,
+  isCreatorNode,
   isParentActive,
   isConnectedToActive,
   nodeId,
@@ -922,8 +969,10 @@ const FlowNode = ({
   const fillNode = useCallback(() => {
     if (isParentActive) {
       return "aquamarine";
-    } else if (isActive) {
+    } else if (isCreatorNode) {
       return "lightblue";
+    } else if (isActive) {
+      return "lightyellow";
     } else {
       switch (highlightAction) {
         case node_highlighting.None.label:
@@ -956,12 +1005,13 @@ const FlowNode = ({
       }
     }
   }, [
-    outNode,
-    isActive,
-    isConnectedToActive,
-    highlightVisibility,
-    highlightAction,
     isParentActive,
+    isCreatorNode,
+    isActive,
+    highlightAction,
+    isConnectedToActive,
+    outNode,
+    highlightVisibility,
   ]);
 
   useEffect(() => {
