@@ -12,6 +12,8 @@ import {
   deleteUser,
   createUser,
   updateUser,
+  activateLoading,
+  deActivateLoading,
 } from "../_features/users/usersSlice";
 import LoginDialog from "./LoginDialog";
 import {
@@ -139,11 +141,17 @@ export const FlowChart = () => {
   const [openLoginModal, setOpenLoginModal] = useState(false);
   const [userModalData, setUserModalData] = useState({ predecessorId: null });
   const [flowData, setFlowData] = useState(
-    generateProcedureFlow(1, [{
-      id: 1,
-      name: "Node Title 1",
-      successors: [2],
-    }], treeRanker)
+    generateProcedureFlow(
+      1,
+      [
+        {
+          id: 1,
+          name: "Node Title 1",
+          successors: [2],
+        },
+      ],
+      treeRanker
+    )
   );
   const usersStatus = useSelector(getUsersStatus);
   const usersData = useSelector(getAllUserData);
@@ -151,7 +159,9 @@ export const FlowChart = () => {
 
   useEffect(() => {
     if (usersStatus === LoadingStatus.Idle) {
+      dispatch(activateLoading());
       dispatch(getAllUsers());
+      dispatch(deActivateLoading());
     }
   }, [dispatch, usersStatus]);
 
@@ -183,7 +193,9 @@ export const FlowChart = () => {
   };
 
   const onNodeDelete = async (nodeId) => {
-    dispatch(deleteUser(nodeId));
+    await dispatch(activateLoading());
+    await dispatch(deleteUser(nodeId));
+    await dispatch(deActivateLoading());
   };
 
   const onNodeEdit = (node) => {
@@ -192,6 +204,7 @@ export const FlowChart = () => {
   };
 
   const addData = async (newNodeData) => {
+    await dispatch(activateLoading());
     if (userModalData.predecessorId) {
       // Create Mode
       dispatch(
@@ -211,6 +224,7 @@ export const FlowChart = () => {
         })
       );
     }
+    await dispatch(deActivateLoading());
     closeAddNewModal();
     setUserModalData({ predecessorId: null });
   };

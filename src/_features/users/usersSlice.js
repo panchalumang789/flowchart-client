@@ -6,6 +6,7 @@ const initialState = {
   usersStatus: LoadingStatus.Idle,
   allUsers: [],
   error: null,
+  loading: false,
 };
 
 export const getAllUsers = createAsyncThunk("users/getAllUsers", async () => {
@@ -57,6 +58,12 @@ const usersSlice = createSlice({
   initialState,
   reducers: {
     resetUsers: (state) => initialState,
+    activateLoading: (state) => {
+      state.loading = true;
+    },
+    deActivateLoading: (state) => {
+      state.loading = false;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -115,7 +122,9 @@ const usersSlice = createSlice({
 export const usersError = (state) => state.users.error;
 export const getAllUserData = (state) => state.users.allUsers;
 export const getUsersStatus = (state) => state.users.usersStatus;
+export const getLoadingStatus = (state) => state.users.loading;
 
-export const { resetUsers } = usersSlice.actions;
+export const { resetUsers, activateLoading, deActivateLoading } =
+  usersSlice.actions;
 
 export default usersSlice.reducer;

@@ -9,12 +9,16 @@ import {
 } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { loginUser } from "../../_features/account/accountSlice";
+import {
+  activateLoading,
+  deActivateLoading,
+} from "../../_features/users/usersSlice";
 
 const INIT_VALUES = {
   username: "",
   password: "",
 };
-const LoginDialog = ({ isModalOpen, closeModal, submitData }) => {
+const LoginDialog = ({ isModalOpen, closeModal }) => {
   const dispatch = useDispatch();
   const [userFormData, setUserFormData] = useState(INIT_VALUES);
   const [errors, setErrors] = useState({ username: false, password: false });
@@ -27,12 +31,14 @@ const LoginDialog = ({ isModalOpen, closeModal, submitData }) => {
   }, [isModalOpen]);
 
   const login = async (userData) => {
+    await dispatch(activateLoading());
     const login = await dispatch(loginUser(userData));
     if (login?.meta?.requestStatus === "fulfilled") {
       closeModal();
     } else {
       setErrors((prev) => ({ ...prev, password: true }));
     }
+    await dispatch(deActivateLoading());
   };
 
   const validateLoginForm = useCallback(() => {
