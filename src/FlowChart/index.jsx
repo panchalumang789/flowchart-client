@@ -1,5 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button } from "@mui/material";
+import {
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 
 import AddUserDialog from "./AddUserDialog";
@@ -107,6 +113,7 @@ const generateProcedureFlow = (
 
     return {
       name: node.name,
+      guj_name: node.guj_name,
       id: parentId ? parentId + ":" + node.id : node.id,
       isHome: String(node.id) === String(startNodeId),
       connections: getNodeConnections(node, nodes, parentId),
@@ -139,6 +146,7 @@ export const FlowChart = () => {
   const [selectedNodeId, setSelectedNodeId] = useState(1);
   const [openAddNewModal, setOpenAddNewModal] = useState(false);
   const [openLoginModal, setOpenLoginModal] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("english");
   const [userModalData, setUserModalData] = useState({ predecessorId: null });
   const [flowData, setFlowData] = useState(
     generateProcedureFlow(
@@ -207,7 +215,7 @@ export const FlowChart = () => {
     await dispatch(activateLoading());
     if (userModalData.predecessorId) {
       // Create Mode
-      dispatch(
+      await dispatch(
         createUser({
           predecessor: userModalData.predecessorId,
           successors: [],
@@ -216,7 +224,7 @@ export const FlowChart = () => {
       );
     } else {
       // Edit Mode
-      dispatch(
+      await dispatch(
         updateUser({
           predecessor: userModalData.predecessorId,
           ...userModalData,
@@ -231,6 +239,30 @@ export const FlowChart = () => {
 
   return (
     <div ref={nodeDisplayPanel} style={{ height: "100vh", width: "100vw" }}>
+      <FormControl
+        style={{
+          position: "absolute",
+          right: "115px",
+          top: "12px",
+          zIndex: 999,
+          width: "125px",
+        }}
+      >
+        <InputLabel id="demo-simple-select-label">Language</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={selectedLanguage}
+          style={{ height: "45px" }}
+          label="Language"
+          onChange={(e) => {
+            setSelectedLanguage(e.target.value);
+          }}
+        >
+          <MenuItem value="english">English</MenuItem>
+          <MenuItem value="gujarati">Gujarati</MenuItem>
+        </Select>
+      </FormControl>
       <Button
         variant="contained"
         style={{
@@ -258,6 +290,7 @@ export const FlowChart = () => {
         nodeDisplayPanel={nodeDisplayPanel}
         onNodeDelete={onNodeDelete}
         onNodeEdit={onNodeEdit}
+        selectedLanguage={selectedLanguage}
       />
       <AddUserDialog
         userData={userModalData}

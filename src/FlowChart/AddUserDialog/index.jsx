@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   TextField,
   Dialog,
@@ -16,20 +16,37 @@ const INIT_VALUES = {
 };
 const AddUserDialog = ({ userData, isModalOpen, closeModal, submitData }) => {
   const [userFormData, setUserFormData] = useState(INIT_VALUES);
-  const [errors, setErrors] = useState(false);
+  const [errors, setErrors] = useState({ name: false, guj_name: false });
 
   useEffect(() => {
-    setUserFormData({ name: userData?.name || "", transferChilds: false });
+    setUserFormData({
+      name: userData?.name || "",
+      guj_name: userData?.guj_name || "",
+      transferChilds: false,
+    });
     return () => {
       setUserFormData(INIT_VALUES);
-      setErrors(false);
+      setErrors({ name: false, guj_name: false });
     };
   }, [isModalOpen, userData]);
+
+  const validateLoginForm = useCallback(() => {
+    if (!userFormData.name) {
+      setErrors((prev) => ({ ...prev, name: true }));
+    }
+    if (!userFormData.guj_name) {
+      setErrors((prev) => ({ ...prev, guj_name: true }));
+    }
+    if (userFormData.name && userFormData.guj_name) {
+      return true;
+    }
+    return false;
+  }, [userFormData]);
 
   return (
     <Dialog open={isModalOpen} onClose={closeModal}>
       <DialogTitle>{userData.predecessorId ? "Add" : "Edit"} User</DialogTitle>
-      <DialogContent sx={{ width: "400px" }}>
+      <DialogContent sx={{ width: "400px", maxWidth: "fit-content" }}>
         <TextField
           fullWidth
           autoFocus
@@ -37,20 +54,42 @@ const AddUserDialog = ({ userData, isModalOpen, closeModal, submitData }) => {
           id="name"
           value={userFormData.name}
           onChange={(event) => {
-            setErrors(!event.target.value);
+            setErrors((prev) => ({ ...prev, name: !event.target.value }));
             setUserFormData((prev) => ({ ...prev, name: event.target.value }));
           }}
-          label="User Name"
+          label="Name"
           type="text"
           variant="outlined"
-          error={!!errors}
-          helperText={!!errors ? "Enter valid user name" : ""}
+          error={!!errors.name}
+          helperText={!!errors.name ? "Enter valid user name" : ""}
+        />
+        <TextField
+          fullWidth
+          autoFocus
+          margin="dense"
+          id="guj_name"
+          value={userFormData.guj_name}
+          onChange={(event) => {
+            setErrors((prev) => ({ ...prev, guj_name: !event.target.value }));
+            setUserFormData((prev) => ({
+              ...prev,
+              guj_name: event.target.value,
+            }));
+          }}
+          label="Name 2"
+          type="text"
+          variant="outlined"
+          error={!!errors.guj_name}
+          helperText={!!errors.guj_name ? "Enter valid user name" : ""}
         />
         <FormControlLabel
           value={userFormData.transferChilds}
           control={<Checkbox />}
           onChange={(event) => {
-            setUserFormData((prev) => ({ ...prev, transferChilds: event.target.checked }));
+            setUserFormData((prev) => ({
+              ...prev,
+              transferChilds: event.target.checked,
+            }));
           }}
           label="Transfer Child"
         />
@@ -62,8 +101,11 @@ const AddUserDialog = ({ userData, isModalOpen, closeModal, submitData }) => {
         <Button
           variant="contained"
           color="success"
-          disabled={errors}
-          onClick={() => submitData(userFormData)}
+          onClick={() => {
+            if (validateLoginForm()) {
+              submitData(userFormData);
+            }
+          }}
         >
           {userData.predecessorId ? "Add" : "Update"}
         </Button>

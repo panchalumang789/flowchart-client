@@ -26,7 +26,7 @@ const LoginDialog = ({ isModalOpen, closeModal }) => {
   useEffect(() => {
     return () => {
       setUserFormData(INIT_VALUES);
-      setErrors(false);
+      setErrors({ username: false, password: false });
     };
   }, [isModalOpen]);
 
@@ -57,7 +57,7 @@ const LoginDialog = ({ isModalOpen, closeModal }) => {
   return (
     <Dialog open={isModalOpen} onClose={closeModal}>
       <DialogTitle>Login User</DialogTitle>
-      <DialogContent sx={{ width: "400px" }}>
+      <DialogContent sx={{ width: "400px", maxWidth: "fit-content" }}>
         <TextField
           fullWidth
           autoFocus

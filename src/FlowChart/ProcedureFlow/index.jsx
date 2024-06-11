@@ -48,6 +48,7 @@ const ProcedureFlow = ({
   setClickedAddButton,
   onNodeDelete,
   nodeDisplayPanel,
+  selectedLanguage,
 }) => {
   //#region Constants
   //#endregion Constants
@@ -360,7 +361,7 @@ const ProcedureFlow = ({
         width={flowChart.nodeWidth}
         height={flowChart.nodeHeight}
         num={node.id.toString()}
-        name={node.name}
+        name={selectedLanguage === "english" ? node.name : node.guj_name}
         icons={node.icons}
         homeNode={node?.isHome}
         data={node?.data}
@@ -1106,7 +1107,7 @@ const FlowNode = ({
           width={width - 10}
           height={height / 3.0}
           text={name}
-          fontSize={20}
+          fontSize={18}
           align="center"
           verticalAlign="middle"
           fill="black"
