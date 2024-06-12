@@ -43,6 +43,17 @@ const AddUserDialog = ({ userData, isModalOpen, closeModal, submitData }) => {
     return false;
   }, [userFormData]);
 
+  const keyPress = useCallback(
+    (e) => {
+      if (e.keyCode === 13) {
+        if (validateLoginForm()) {
+          submitData(userFormData);
+        }
+      }
+    },
+    [submitData, userFormData, validateLoginForm]
+  );
+
   return (
     <Dialog open={isModalOpen} onClose={closeModal}>
       <DialogTitle>{userData.predecessorId ? "Add" : "Edit"} User</DialogTitle>
@@ -57,6 +68,7 @@ const AddUserDialog = ({ userData, isModalOpen, closeModal, submitData }) => {
             setErrors((prev) => ({ ...prev, name: !event.target.value }));
             setUserFormData((prev) => ({ ...prev, name: event.target.value }));
           }}
+          onKeyDown={(e) => keyPress(e)}
           label="Name"
           type="text"
           variant="outlined"
@@ -65,7 +77,6 @@ const AddUserDialog = ({ userData, isModalOpen, closeModal, submitData }) => {
         />
         <TextField
           fullWidth
-          autoFocus
           margin="dense"
           id="guj_name"
           value={userFormData.guj_name}
@@ -76,7 +87,8 @@ const AddUserDialog = ({ userData, isModalOpen, closeModal, submitData }) => {
               guj_name: event.target.value,
             }));
           }}
-          label="Name 2"
+          onKeyDown={(e) => keyPress(e)}
+          label="Gujarati Name"
           type="text"
           variant="outlined"
           error={!!errors.guj_name}

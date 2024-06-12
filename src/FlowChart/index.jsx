@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Box,
   Button,
   FormControl,
   InputLabel,
@@ -239,45 +240,43 @@ export const FlowChart = () => {
 
   return (
     <div ref={nodeDisplayPanel} style={{ height: "100vh", width: "100vw" }}>
-      <FormControl
-        style={{
-          position: "absolute",
-          right: "115px",
-          top: "12px",
-          zIndex: 999,
-          width: "125px",
-        }}
+      <Box
+        position="absolute"
+        width="calc(100% - 20px)"
+        padding="10px"
+        display="flex"
+        gap="10px"
+        justifyContent="end"
+        zIndex="2"
+        backgroundColor="#ffffff"
       >
-        <InputLabel id="demo-simple-select-label">Language</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={selectedLanguage}
-          style={{ height: "45px" }}
-          label="Language"
-          onChange={(e) => {
-            setSelectedLanguage(e.target.value);
+        <FormControl style={{ zIndex: 999, width: "125px" }}>
+          <InputLabel id="demo-simple-select-label">Language</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={selectedLanguage}
+            style={{ height: "45px" }}
+            label="Language"
+            onChange={(e) => {
+              setSelectedLanguage(e.target.value);
+            }}
+          >
+            <MenuItem value="english">English</MenuItem>
+            <MenuItem value="gujarati">Gujarati</MenuItem>
+          </Select>
+        </FormControl>
+        <Button
+          variant="contained"
+          style={{ zIndex: 999 }}
+          color="info"
+          onClick={() => {
+            activeUser?.role ? dispatch(logoutUser()) : setOpenLoginModal(true);
           }}
         >
-          <MenuItem value="english">English</MenuItem>
-          <MenuItem value="gujarati">Gujarati</MenuItem>
-        </Select>
-      </FormControl>
-      <Button
-        variant="contained"
-        style={{
-          position: "absolute",
-          right: "15px",
-          top: "15px",
-          zIndex: 999,
-        }}
-        color="info"
-        onClick={() => {
-          activeUser?.role ? dispatch(logoutUser()) : setOpenLoginModal(true);
-        }}
-      >
-        {activeUser?.role ? "Logout" : "Login"}
-      </Button>
+          {activeUser?.role ? "Logout" : "Login"}
+        </Button>
+      </Box>
       <ProcedureFlow
         draggable={false}
         layoutEngine={layoutEngines.dagreLayout}

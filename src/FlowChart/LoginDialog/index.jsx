@@ -30,16 +30,19 @@ const LoginDialog = ({ isModalOpen, closeModal }) => {
     };
   }, [isModalOpen]);
 
-  const login = async (userData) => {
-    await dispatch(activateLoading());
-    const login = await dispatch(loginUser(userData));
-    if (login?.meta?.requestStatus === "fulfilled") {
-      closeModal();
-    } else {
-      setErrors((prev) => ({ ...prev, password: true }));
-    }
-    await dispatch(deActivateLoading());
-  };
+  const login = useCallback(
+    async (userData) => {
+      await dispatch(activateLoading());
+      const login = await dispatch(loginUser(userData));
+      if (login?.meta?.requestStatus === "fulfilled") {
+        closeModal();
+      } else {
+        setErrors((prev) => ({ ...prev, password: true }));
+      }
+      await dispatch(deActivateLoading());
+    },
+    [closeModal, dispatch]
+  );
 
   const validateLoginForm = useCallback(() => {
     if (!userFormData.username) {
@@ -54,6 +57,17 @@ const LoginDialog = ({ isModalOpen, closeModal }) => {
     return false;
   }, [userFormData]);
 
+  const keyPress = useCallback(
+    (e) => {
+      if (e.keyCode === 13) {
+        if (validateLoginForm()) {
+          login(userFormData);
+        }
+      }
+    },
+    [login, userFormData, validateLoginForm]
+  );
+
   return (
     <Dialog open={isModalOpen} onClose={closeModal}>
       <DialogTitle>Login User</DialogTitle>
@@ -64,6 +78,7 @@ const LoginDialog = ({ isModalOpen, closeModal }) => {
           margin="dense"
           id="username"
           value={userFormData.username}
+          onKeyDown={(e) => keyPress(e)}
           onChange={(event) => {
             setErrors((prev) => ({ ...prev, username: !event.target.value }));
             setUserFormData((prev) => ({
@@ -79,10 +94,10 @@ const LoginDialog = ({ isModalOpen, closeModal }) => {
         />
         <TextField
           fullWidth
-          autoFocus
           margin="dense"
           id="password"
           value={userFormData.password}
+          onKeyDown={(e) => keyPress(e)}
           onChange={(event) => {
             setErrors((prev) => ({ ...prev, password: !event.target.value }));
             setUserFormData((prev) => ({
